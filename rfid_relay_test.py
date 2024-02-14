@@ -4,7 +4,7 @@ from Google import Create_Service
 import RPi.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
 import time
-
+from datetime import datetime
 
 
 #relay stuff when u get to it:
@@ -44,8 +44,8 @@ GPIO.setup(18, GPIO.OUT)
 #start closed
 GPIO.output(18,0)
 
-#gives a start time relative to current time
-start = time.monotonic()
+#time var in utc time
+curr_time = datetime.now()
 
 def data_send(t,i,tx):
     values = [
@@ -72,11 +72,9 @@ for i in range(0,4):
         id, text = reader.read()
 
         #keep track of the time after id is read
-        end = time.monotonic()
         
         #if the id is valid, open lock
         if id in valid_ids:
-            gate = True
             GPIO.output(18,1)
 
         else:
@@ -84,7 +82,7 @@ for i in range(0,4):
 
     finally:
     #do the end stuff 
-        data_send(end - start, id,text)
+        data_send(curr_time.strftime('%c'), id, text)
         GPIO.cleanup()
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(18, GPIO.OUT)

@@ -5,6 +5,7 @@ import RPi.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
 import time
 from datetime import datetime
+import threading
 
 
 #relay stuff when u get to it:
@@ -61,12 +62,36 @@ def data_send(t,i,tx):
     service.spreadsheets().values().append(
     spreadsheetId=spreadsheet_id,
     valueInputOption='USER_ENTERED',
-    range=worksheet_name,
+    range=worksheet_name + '!A2:C2',
     body=value_range_body
     ).execute()
 
+#this function basically just checks every 5 seconds if there is a tick checked in the spreadsheet as a failsafe
+def read_spread():
+    while True:
+        response = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheet_id,
+        majorDimension='ROWS',
+        range='Sheet1!E2:E2'
+    ).execute()
+        #print(response['values'])
+        if response['values'] == [['TRUE']]:
+
+            GPIO.output(18,1)
+            time.sleep(5)
+
+            GPIO.output(18,0)
+        time.sleep(5)
+
+#runs read_spread on another thread to run simultaneously
+reader_thread = threading.Thread(target=read_spread)
+reader_thread.daemon = True  # Allows the thread to be killed when the main program exits
+reader_thread.start()
+
 #test loop to see if everything works
-for i in range(0,4):
+while True:
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(18, GPIO.OUT)
     print("Place tag: ")
     try:
         id, text = reader.read()
@@ -88,6 +113,6 @@ for i in range(0,4):
         GPIO.setup(18, GPIO.OUT)
     
     #end closed
-    time.sleep(2)
+    time.sleep(5)
     GPIO.output(18,0)
     time.sleep(2)

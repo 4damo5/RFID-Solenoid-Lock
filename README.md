@@ -5,3 +5,5 @@ Basically this runs (for me) on my RPi 3 and it just uses a RC522 to read an RFI
 The timestamps are based on runtime so they might look funny and could be changed to real time values. 
 Sadly, I burnt out the solenoid lock so I gotta get a new one but I know the code works (YOUR LOCK WONT BURN OUT I JUST LEFT THE SOLENOID ACTIVE IN TESTING)
 Anyways, it works.
+
+![](https://github.com/4damo5/RFID-Solenoid-Lock/blob/main/spreadsheet_layout.PNG)
